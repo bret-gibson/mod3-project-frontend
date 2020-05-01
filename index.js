@@ -1,10 +1,12 @@
 document.addEventListener("DOMContentLoaded", () => {
-    fetchGameSong()
-    // const audio = document.getElementById("current-game-song")
-    
+    fetchGameSong()    
 })
 
 function fetchGameSong(){
+    const audioContainer = document.getElementById("audio-container")
+    audioContainer.innerHTML = ""
+    const choiceContainer = document.querySelector("#choice-container")
+    choiceContainer.innerHTML = ""
     fetch("http://localhost:3000/game_songs")
     .then(response => response.json())
     .then(gameSongData => {
@@ -26,7 +28,6 @@ function renderAudio(songChoice){
     audioPlayer.volume = 0.0
     audioPlayer.addEventListener("play", () => fetchChoices(songChoice), { once: true})
     audioContainer.append(audioPlayer)
-
 }
 
 function fetchChoices(songChoice){
@@ -37,32 +38,61 @@ function fetchChoices(songChoice){
     fetch("http://localhost:3000/songs")
     .then(response => response.json())
     .then(songs => {
+
+        // Maybe fix so that we arent querying ALL songs every time...
+        // want to query for JUST the songs marked as dummy (may need to change API)
         const songArray = songs["data"]
         const dummySongs = songArray.filter(song => song.attributes.dummy === true).sort(() => Math.random() - 0.5); //array of only dummy songs
 
         let choices = []
 
         for (let i = 0; choices.length < 3; i++){
-            choices.push(dummySongs[i].attributes)
+            choices.push(dummySongs[i])
         }
         choices.push(songChoice.attributes.song)
-        renderChoices(choices)
+        renderChoices(choices, songChoice)
     }) 
 }
 
-function renderChoices(choices){
-    //buttons for the wrong answers
+function renderChoices(choices, songChoice){
+    // buttons for the wrong answers
     // shuffle buttons to make order random
-    choices.sort(() => Math.random() - 0.5);
+    let choices1 = choices.sort(() => Math.random() - 0.5);
     const choiceContainer = document.querySelector("#choice-container")
-    choices.forEach((choice) => {
+    choices1.forEach((choice) => {
         let button = document.createElement("button")
-        button.innerText = `${choice.title} - ${choice.artist}`
         
+        if (choice["attributes"]){
+            button.innerText = `${choice["attributes"]["title"]} - ${choice["attributes"]["artist"]}`
+        }
+        else {
+            button.innerText = `${choice["title"]} - ${choice["artist"]}`
+        }
+
+        button.id = choice.id
+        button.addEventListener("click", () => handleChoice(choices, songChoice))
         choiceContainer.append(button)
     })
     const mainContainer = document.querySelector("#main-container")
     mainContainer.append(choiceContainer)
+}
 
-    //button for the right answer
+function handleChoice(choices, songChoice) {
+    console.log(choices, songChoice)
+    // debugger
+    if (event.target.id === songChoice.id){
+        alert("YOU GOT IT RIGHT")
+        fetchGameSong()
+    } else {
+        alert("WRONG! GAME OVER!")
+        //remove event listener so you can't keep playing
+        //or remove buttons.. 
+    }
+
+
+    //if choice = gameSong, then give point
+    //if not, then no point
+
+    
+
 }
