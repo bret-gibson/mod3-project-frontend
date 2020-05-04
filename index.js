@@ -10,17 +10,18 @@ const points = document.getElementById('points')
 
 
 document.addEventListener("DOMContentLoaded", () => {
-    fetchGameSong()
+    fetchSong()
 })
 
-function fetchGameSong(){
+function fetchSong(){
     audioContainer.innerHTML = ""
-    fetch("http://localhost:3000/game_songs")
+    fetch("http://localhost:3000/songs")
     .then(response => response.json())
-    .then(gameSongData => {
-        const gameSongArray = gameSongData["data"]
-        const songChoice = gameSongArray[Math.floor(Math.random() * gameSongArray.length)]
-        const songUrl = songChoice.attributes.song.source
+    .then(songData => {
+        const songArray = songData["data"]
+        const usableSongs = songArray.filter(song => song.attributes.dummy === false).sort(() => Math.random() - 0.5);
+        const songChoice = usableSongs[Math.floor(Math.random() * usableSongs.length)]
+        const songUrl = songChoice.attributes.source
         renderAudio(songChoice)
     })
 }
@@ -31,7 +32,7 @@ function renderAudio(songChoice){
     const audioPlayer = document.createElement("audio")
     audioPlayer.id = "current-game-song"
     audioPlayer.controls = "controls"
-    const songUrl = songChoice.attributes.song.source 
+    const songUrl = songChoice.attributes.source 
     audioPlayer.src = songUrl   //gamesong
     audioPlayer.type="audio/mp3"
     audioPlayer.volume = 0.1
@@ -45,17 +46,18 @@ function renderAudio(songChoice){
 }
 
 function fetchChoices(songChoice){
+
     //get fetch call to game songs, where gamesong = false
     //create buttons for each
     //do this X amount of times for X choices
     // choiceList.innerHTML = ""
 
-    if (score > 1) {
-        let message = document.getElementById("correct-message")
+    let message = document.getElementById("correct-message")
+    if (score > 0 && message) {
         message.remove()
     }
 
-    startTimer(1)
+    startTimer(9)
 
     fetch("http://localhost:3000/songs")
     .then(response => response.json())
@@ -70,7 +72,8 @@ function fetchChoices(songChoice){
         for (let i = 0; choices.length < 3; i++){
             choices.push(dummySongs[i])
         }
-        choices.push(songChoice.attributes.song)
+        choices.push(songChoice)
+        
         renderChoices(choices, songChoice)
     }) 
 }
@@ -93,6 +96,7 @@ function renderChoices(choices, songChoice){
             button.innerText = `${choice["title"]} - ${choice["artist"]}`
         }        
         button.type = "button"
+        // debugger
         button.id = choice.id
         button.classList = "btn btn-primary btn-large btn-block"
         button.addEventListener("click", () => handleChoice(choices, songChoice))
@@ -104,6 +108,7 @@ function renderChoices(choices, songChoice){
 
 function handleChoice(choices, songChoice) {
     let timeLeft = parseInt(document.getElementById("timer").innerText)
+
     if (event.target.id === songChoice.id){
         // $("#myModal").modal();
         if (timeLeft >= 5){
@@ -111,6 +116,7 @@ function handleChoice(choices, songChoice) {
         } else {
             score += 50
         }
+
         points.innerText = `${score} Points`
         event.target.style = "background-color:green"
         let correctMessageDiv = document.createElement("div")
@@ -119,7 +125,7 @@ function handleChoice(choices, songChoice) {
         gameHeader.append(correctMessageDiv)
 
         clearInterval(timerId)
-        fetchGameSong()
+        fetchSong()
     } else {
         event.target.style = "background-color:#c90000; border-color: #c90000"
         const audio = document.querySelector("audio")
@@ -138,10 +144,10 @@ function handleChoice(choices, songChoice) {
             incorrectMessageDiv.remove()
             tryAgainButton.remove()
             choiceList.innerHTML = ""
-            fetchGameSong()
+            fetchSong()
         })
         incorrectMessageDiv.append(tryAgainButton)
-
+        
         let correctChoice = document.getElementById(songChoice.id)
         correctChoice.style = "background-color:green"
         clearInterval(timerId)
@@ -177,7 +183,7 @@ function startTimer(duration){
             tryAgainButton.addEventListener("click", () => {
                 outOfTime.remove()
                 tryAgainButton.remove()
-                fetchGameSong()
+                fetchSong()
             })
             outOfTime.append(tryAgainButton)
             choiceContainer.append(outOfTime)
