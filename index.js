@@ -139,6 +139,13 @@ function handleChoice(choices, songChoice) {
         correctChoice.style = "background-color:green"
         clearInterval(timerId)
     }
+    // const blah = document.getElementById("choices")
+    // let buttons = blah.childNodes
+    // buttons.forEach(button => {
+    //     let att = createAttribute("disabled")
+    //     att.value = "true"
+    //     button.setAttribute(att)
+    // })
 }
 
 function startTimer(duration){
