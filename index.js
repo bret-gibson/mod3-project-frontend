@@ -19,9 +19,9 @@ function playGame(){
     mainContainer.append(playGameButton)
 
     playGameButton.addEventListener("click", () => {
-        fetchSong()  
+        createGameSession()
+        fetchSong()
         playGameButton.remove()
-        // fetchGameSession()
     })
 
 }
@@ -35,40 +35,87 @@ function fetchSong(){
         const sortedSongs = songArray.sort(() => Math.random() - 0.5);
         const songChoice = sortedSongs[Math.floor(Math.random() * sortedSongs.length)]
         const songUrl = songChoice.attributes.source
+        localStorage.setItem("songId", songChoice.id)
+        createGameSong(songChoice)
+        // patchGameSession(songChoice)
         renderAudio(songChoice)
-        fetchGameSession(songChoice)
     })
 }
 
-function fetchGameSession(songChoice){
+function createGameSession(songChoice){
     
-    // object = {
-    //     type: "game_session"
-        // songs: [{
-        //     id: songChoice.id,
-        //     title: songChoice.title,
-        //     artist: songChoice.artist,
-        //     genre: songChoice.genre,
-        //     source: songChoice.source,
-        //     dummy: songChoice.dummy,
-        //     created_at: songChoice.created_at,
-        //     updated_at: songChoice.updated_at
-        // }]
-    // }
-
     fetch('http://localhost:3000/game_sessions', {
         method: 'POST',
         headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
         },
-        body: JSON.stringify()
+        body: JSON.stringify({
         })
-    // .then(response => response.json())
+        })
     // .then(data => {
-    //     debugger
-    //     console.log(data)})
+    //     console.log(data)
+    //     debugger })
+
+    // fetchSong()
+
 }
+
+function getGameSession(){
+    fetch("http://localhost:3000/game_sessions/last")
+    .then(response => response.json())
+    .then(session => {
+        localStorage.setItem("sessionId", session.data.id)
+    })
+}
+
+function createGameSong(songChoice){
+    let sessionId = localStorage.getItem("sessionId")
+    let songId = localStorage.getItem("songId")
+    let gameSongObj = {
+        game_session_id: sessionId,
+        song_id: songId,
+        correct_guess: false
+    }
+
+    fetch('http://localhost:3000/game_songs', {
+        method: 'POST',
+        headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(gameSongObj)
+        })
+
+
+}
+
+// function patchGameSession(songChoice){
+//     // debugger
+//     // attributes: {
+//     //     songs: []
+//     //     }
+//     // }
+//     let songObject = {
+//             id: songChoice.id,
+//             title: songChoice.title,
+//             artist: songChoice.artist,
+//             genre: songChoice.genre,
+//             source: songChoice.source,
+//             dummy: songChoice.dummy,
+//             created_at: songChoice.created_at,
+//             updated_at: songChoice.updated_at
+//     }
+//     //finding a workaround for now with /last
+//     fetch("http://localhost:3000/game_sessions/last", {
+//         method: 'PATCH',
+//         headers: {
+//         'Accept': 'application/json',
+//         'Content-Type': 'application/json'
+//         },
+//         body: JSON.stringify()
+//     })
+// }
 
 function renderAudio(songChoice){
     const timer = document.querySelector("#timer")
