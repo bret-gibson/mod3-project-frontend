@@ -1,12 +1,20 @@
+let countdown
+let timerId
+let score = 0
+const mainContainer = document.querySelector("#main-container")
+const audioContainer = document.querySelector("#audio-container")
+const choiceContainer = document.querySelector("#choice-container")
+const gameHeader = document.querySelector("#game-header")
+const choiceList = document.querySelector("#choices")
+const points = document.getElementById('points')
+
+
 document.addEventListener("DOMContentLoaded", () => {
-    fetchGameSong()    
+    fetchGameSong()
 })
 
 function fetchGameSong(){
-    const audioContainer = document.getElementById("audio-container")
     audioContainer.innerHTML = ""
-    const choiceContainer = document.querySelector("#choice-container")
-    choiceContainer.innerHTML = ""
     fetch("http://localhost:3000/game_songs")
     .then(response => response.json())
     .then(gameSongData => {
@@ -18,27 +26,40 @@ function fetchGameSong(){
 }
 
 function renderAudio(songChoice){
+    const timer = document.querySelector("#timer")
+    timer.textContent = "10 seconds remaining"
     const audioPlayer = document.createElement("audio")
-    const audioContainer = document.getElementById("audio-container")
     audioPlayer.id = "current-game-song"
     audioPlayer.controls = "controls"
     const songUrl = songChoice.attributes.song.source 
     audioPlayer.src = songUrl   //gamesong
     audioPlayer.type="audio/mp3"
-    audioPlayer.volume = 0.0
+    audioPlayer.volume = 0.1
     audioPlayer.addEventListener("play", () => fetchChoices(songChoice), { once: true})
     audioContainer.append(audioPlayer)
+    // let start = document.createElement("button")
+    // start.classList = "btn btn-primary btn-large"
+    // start.textContent = "Start"
+    // start.addEventListener("click", (event) => startAudio(audioPlayer)) //start))
+    // audioContainer.append(start)
 }
 
 function fetchChoices(songChoice){
     //get fetch call to game songs, where gamesong = false
     //create buttons for each
     //do this X amount of times for X choices
+    choiceList.innerHTML = ""
+
+    if (score > 1) {
+        let message = document.getElementById("correct-message")
+        message.remove()
+    }
+
+    startTimer(9)
 
     fetch("http://localhost:3000/songs")
     .then(response => response.json())
     .then(songs => {
-
         // Maybe fix so that we arent querying ALL songs every time...
         // want to query for JUST the songs marked as dummy (may need to change API)
         const songArray = songs["data"]
@@ -57,9 +78,10 @@ function fetchChoices(songChoice){
 function renderChoices(choices, songChoice){
     // buttons for the wrong answers
     // shuffle buttons to make order random
-    let choices1 = choices.sort(() => Math.random() - 0.5);
-    const choiceContainer = document.querySelector("#choice-container")
-    choices1.forEach((choice) => {
+    let new_choices = choices.sort(() => Math.random() - 0.5);
+    new_choices.forEach((choice) => {
+        let choiceItem = document.createElement("li")
+        choiceItem.textContent =""
         let button = document.createElement("button")
         
         if (choice["attributes"]){
@@ -67,32 +89,100 @@ function renderChoices(choices, songChoice){
         }
         else {
             button.innerText = `${choice["title"]} - ${choice["artist"]}`
-        }
-
+        }        
+        button.type = "button"
         button.id = choice.id
+        button.classList = "btn btn-primary btn-large btn-block"
         button.addEventListener("click", () => handleChoice(choices, songChoice))
-        choiceContainer.append(button)
+        choiceItem.append(button)
+        choiceList.append(choiceItem)
     })
-    const mainContainer = document.querySelector("#main-container")
     mainContainer.append(choiceContainer)
 }
 
 function handleChoice(choices, songChoice) {
-    console.log(choices, songChoice)
-    // debugger
+    let timeLeft = parseInt(document.getElementById("timer").innerText)
     if (event.target.id === songChoice.id){
-        alert("YOU GOT IT RIGHT")
+        // $("#myModal").modal();
+        if (timeLeft >= 5){
+            score += 100
+        } else {
+            score += 50
+        }
+        points.innerText = `${score} Points`
+        event.target.style = "background-color:green"
+        let correctMessageDiv = document.createElement("div")
+        correctMessageDiv.id = "correct-message"
+        correctMessageDiv.innerText = "Correct! Keep Going!"
+        gameHeader.append(correctMessageDiv)
+
+        clearInterval(timerId)
         fetchGameSong()
     } else {
-        alert("WRONG! GAME OVER!")
-        //remove event listener so you can't keep playing
-        //or remove buttons.. 
+        event.target.style = "background-color:#c90000; border-color: #c90000"
+        const audio = document.querySelector("audio")
+        audio.pause()
+        audioContainer.innerHTML = ""
+
+        let incorrectMessageDiv = document.createElement("div")
+        incorrectMessageDiv.id = "incorrect-message"
+        incorrectMessageDiv.innerText = "Incorrect! Game Over!"
+        gameHeader.append(incorrectMessageDiv)
+
+        let tryAgainButton = document.createElement("button")
+        tryAgainButton.innerText = "Try Again?"
+        tryAgainButton.classList = "btn btn-large btn-primary"
+        tryAgainButton.addEventListener("click", fetchGameSong)
+        incorrectMessageDiv.append(tryAgainButton)
+
+        let correctChoice = document.getElementById(songChoice.id)
+        correctChoice.style = "background-color:green"
+        clearInterval(timerId)
     }
-
-
-    //if choice = gameSong, then give point
-    //if not, then no point
-
-    
-
+    // const blah = document.getElementById("choices")
+    // let buttons = blah.childNodes
+    // buttons.forEach(button => {
+    //     let att = createAttribute("disabled")
+    //     att.value = "true"
+    //     button.setAttribute(att)
+    // })
 }
+
+function startTimer(duration){
+    let timeLeft = duration
+    let timer = document.getElementById('timer')
+
+    timerId = setInterval(countdown, 1000)
+    
+    function countdown() {
+        if (timeLeft < 0) {
+            clearTimeout(timerId)
+            const audio = document.querySelector("audio")
+            audio.pause()
+            choiceContainer.innerHTML = ""
+            audioContainer.innerHTML = ""
+            let outOfTime = document.createElement("div")
+            outOfTime.id = "out-of-time"
+            outOfTime.innerText = "Out of time! Game over!"
+            choiceContainer.append(outOfTime)
+        } else {
+            timer.textContent = timeLeft + ' seconds remaining'
+            timeLeft--
+        }
+    }
+}
+
+// function startAudio(audioPlayer, start) {
+//     audioPlayer.play()
+//     start.textContent = "Stop music and quit"
+//     start.addEventListener("click", (event) => quitGame(audioPlayer))
+// }
+
+// function quitGame(audioPlayer){
+//     clearTimeout(timerId)
+//     audioPlayer.pause()
+//     audioContainer.innerHTML = ""
+//     choiceList.innerHTML = ""
+//     points.innerText = "0 Points"
+//     fetchGameSong()
+// }
