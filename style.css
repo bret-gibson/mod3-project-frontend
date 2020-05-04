@@ -1,3 +1,19 @@
+li{
+    padding: 4px;
+}
+
 #choices{
     list-style-type: none;
+}
+
+#game-header {
+    text-align: center;
+}
+
+/* #points, #timer {
+    display: inline-block;
+} */
+
+#audio-container, #correct-message, #incorrect-message, #out-of-time {
+    text-align: center;
 }
