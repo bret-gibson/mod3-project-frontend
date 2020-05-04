@@ -10,20 +10,64 @@ const points = document.getElementById('points')
 
 
 document.addEventListener("DOMContentLoaded", () => {
-    fetchSong()
+    playGame()
 })
+
+function playGame(){
+    const playGameButton = document.createElement("button")
+    playGameButton.innerText = "Start Game"
+    mainContainer.append(playGameButton)
+
+    playGameButton.addEventListener("click", () => {
+        fetchSong()  
+        playGameButton.remove()
+        // fetchGameSession()
+    })
+
+}
 
 function fetchSong(){
     audioContainer.innerHTML = ""
-    fetch("http://localhost:3000/songs")
+    fetch("http://localhost:3000/songs/answer_songs")
     .then(response => response.json())
     .then(songData => {
         const songArray = songData["data"]
-        const usableSongs = songArray.filter(song => song.attributes.dummy === false).sort(() => Math.random() - 0.5);
-        const songChoice = usableSongs[Math.floor(Math.random() * usableSongs.length)]
+        const sortedSongs = songArray.sort(() => Math.random() - 0.5);
+        const songChoice = sortedSongs[Math.floor(Math.random() * sortedSongs.length)]
         const songUrl = songChoice.attributes.source
         renderAudio(songChoice)
+        fetchGameSession(songChoice)
     })
+}
+
+function fetchGameSession(songChoice){
+    
+    // object = {
+    //     type: "game_session"
+        // songs: [{
+        //     id: songChoice.id,
+        //     title: songChoice.title,
+        //     artist: songChoice.artist,
+        //     genre: songChoice.genre,
+        //     source: songChoice.source,
+        //     dummy: songChoice.dummy,
+        //     created_at: songChoice.created_at,
+        //     updated_at: songChoice.updated_at
+        // }]
+    // }
+
+    fetch('http://localhost:3000/game_sessions', {
+        method: 'POST',
+        headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+        },
+        body: JSON.stringify()
+        })
+    // .then(response => response.json())
+    // .then(data => {
+    //     debugger
+    //     console.log(data)})
 }
 
 function renderAudio(songChoice){
@@ -38,6 +82,7 @@ function renderAudio(songChoice){
     audioPlayer.volume = 0.1
     audioPlayer.addEventListener("play", () => fetchChoices(songChoice), { once: true})
     audioContainer.append(audioPlayer)
+    document.getElementById("points").innerText = "0 Points"
     // let start = document.createElement("button")
     // start.classList = "btn btn-primary btn-large"
     // start.textContent = "Start"
@@ -59,14 +104,13 @@ function fetchChoices(songChoice){
 
     startTimer(9)
 
-    fetch("http://localhost:3000/songs")
+    fetch("http://localhost:3000/songs/dummy_songs")
     .then(response => response.json())
     .then(songs => {
         // Maybe fix so that we arent querying ALL songs every time...
         // want to query for JUST the songs marked as dummy (may need to change API)
         const songArray = songs["data"]
-        const dummySongs = songArray.filter(song => song.attributes.dummy === true).sort(() => Math.random() - 0.5); //array of only dummy songs
-
+        const dummySongs = songArray.sort(() => Math.random() - 0.5); 
         let choices = []
 
         for (let i = 0; choices.length < 3; i++){
