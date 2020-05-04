@@ -48,14 +48,14 @@ function fetchChoices(songChoice){
     //get fetch call to game songs, where gamesong = false
     //create buttons for each
     //do this X amount of times for X choices
-    choiceList.innerHTML = ""
+    // choiceList.innerHTML = ""
 
     if (score > 1) {
         let message = document.getElementById("correct-message")
         message.remove()
     }
 
-    startTimer(9)
+    startTimer(1)
 
     fetch("http://localhost:3000/songs")
     .then(response => response.json())
@@ -78,6 +78,8 @@ function fetchChoices(songChoice){
 function renderChoices(choices, songChoice){
     // buttons for the wrong answers
     // shuffle buttons to make order random
+    choiceList.innerHTML = ""
+
     let new_choices = choices.sort(() => Math.random() - 0.5);
     new_choices.forEach((choice) => {
         let choiceItem = document.createElement("li")
@@ -132,7 +134,12 @@ function handleChoice(choices, songChoice) {
         let tryAgainButton = document.createElement("button")
         tryAgainButton.innerText = "Try Again?"
         tryAgainButton.classList = "btn btn-large btn-primary"
-        tryAgainButton.addEventListener("click", fetchGameSong)
+        tryAgainButton.addEventListener("click", () => {
+            incorrectMessageDiv.remove()
+            tryAgainButton.remove()
+            choiceList.innerHTML = ""
+            fetchGameSong()
+        })
         incorrectMessageDiv.append(tryAgainButton)
 
         let correctChoice = document.getElementById(songChoice.id)
@@ -159,11 +166,20 @@ function startTimer(duration){
             clearTimeout(timerId)
             const audio = document.querySelector("audio")
             audio.pause()
-            choiceContainer.innerHTML = ""
+            choiceList.innerHTML = ""
             audioContainer.innerHTML = ""
             let outOfTime = document.createElement("div")
             outOfTime.id = "out-of-time"
             outOfTime.innerText = "Out of time! Game over!"
+            let tryAgainButton = document.createElement("button")
+            tryAgainButton.innerText = "Try Again?"
+            tryAgainButton.classList = "btn btn-large btn-primary"
+            tryAgainButton.addEventListener("click", () => {
+                outOfTime.remove()
+                tryAgainButton.remove()
+                fetchGameSong()
+            })
+            outOfTime.append(tryAgainButton)
             choiceContainer.append(outOfTime)
         } else {
             timer.textContent = timeLeft + ' seconds remaining'
