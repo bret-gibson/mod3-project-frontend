@@ -15,7 +15,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function playGame(){
     const playGameButton = document.createElement("button")
+    playGameButton.id = "start-button"
     playGameButton.innerText = "Start Game"
+    // const playGameButton = document.createElement("img")
+    // playGameButton.id = "start-button"
+    // playGameButton.src = "http://clipart-library.com/images/di9rakrnT.jpg"
+
     mainContainer.append(playGameButton)
 
     playGameButton.addEventListener("click", () => {
@@ -72,18 +77,20 @@ function getGameSession(){
 function createGameSong(songChoice){
     let sessionId = localStorage.getItem("sessionId")
     let songId = localStorage.getItem("songId")
+    
     let gameSongObj = {
         game_session_id: sessionId,
         song_id: songId,
         correct_guess: false
     }
+    
 
     fetch('http://localhost:3000/game_songs', {
         method: 'POST',
         headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-        },
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+                },
         body: JSON.stringify(gameSongObj)
         })
 

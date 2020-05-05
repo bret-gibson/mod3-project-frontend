@@ -17,3 +17,16 @@ li{
 #audio-container, #correct-message, #incorrect-message, #out-of-time {
     text-align: center;
 }
+
+#start-button {
+    border: none;
+    background: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 1;
+    transform: translate(-50%,-50%);
+    -webkit-transform: translate(-50%,-50%);
+    -moz-transform: translate(-50%,-50%);
+    -ms-transform: translate(-50%,-50%);
+  }
