@@ -2,12 +2,21 @@ li{
     padding: 4px;
 }
 
+section {
+    text-align: center;
+}
+
+#columns {
+    text-align: center;
+}
+
 #choices{
     list-style-type: none;
 }
 
 #game-header {
     text-align: center;
+    
 }
 
 
@@ -17,14 +26,14 @@ li{
 }
 
 #sign-in {
-    text-align: center;
+    /* text-align: center; */
 }
 /* #points, #timer {
     display: inline-block;
 } */
 
 #audio-container, #correct-message, #incorrect-message, #out-of-time {
-    text-align: center;
+    /* text-align: center; */
 }
 
 #start-button {

@@ -174,7 +174,7 @@ function renderAudio(songChoice){
     const songUrl = songChoice.attributes.source 
     audioPlayer.src = songUrl 
     audioPlayer.type="audio/mp3"
-    audioPlayer.volume = 0.3
+    audioPlayer.volume = 0.1
     audioPlayer.autoplay = true
     audioContainer.append(audioPlayer)
 
@@ -188,7 +188,7 @@ function renderAudio(songChoice){
     input.setAttribute("data-slider-step", "0.1")
     audioContainer.append(input)
     let slider = new Slider('#ex1', {
-        value: 0.3,
+        value: 0.1,
         precision: 1
     });
     slider.on("change", () => {

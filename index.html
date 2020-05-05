@@ -16,27 +16,46 @@
             <h1>Song Guesser</h1>
         </div>
 
-        <section> 
-            <span class="tooltip"></span> 
-            <div id="slider"></div>
-            <span class="volume"></span>
-          </section>
+        <!-- Bootstrap Columns -->
+        <div class="container" id="columns">
+            <div class="row">
+              <div class="col-2">
+                <!-- High Scores: -->
+              </div>
+              <div class="col-8">
+                <!-- Game -->
 
-        <div id="main-container">
-            <div id ="game-header">
-                <div id="points">
-                    <!-- 0 Points -->
+                    <section> 
+                    <span class="tooltip"></span> 
+                    <div id="slider"></div>
+                    <span class="volume"></span>
+                  </section>
+        
+                <div id="main-container">
+                    <div id ="game-header">
+                        <div id="points">
+                            <!-- 0 Points -->
+                        </div>
+                        <div id='timer'>
+                        </div>
+                    </div>   
+                    <div id="audio-container">
+                    </div>
+                    <div id="choice-container">
+                        <ul id='choices'>
+                        </ul>
+                    </div>
                 </div>
-                <div id='timer'>
-                </div>
-            </div>   
-            <div id="audio-container">
+              </div>
+              <div class="col-2">
+                <!-- User Scores: -->
+              </div>
             </div>
-            <div id="choice-container">
-                <ul id='choices'>
-                </ul>
-            </div>
+          </div>
+        <!-- Bootstrap Columns -->
 
+
+ 
             <!-- Modal -->
             <!-- <div class="modal fade" id="myModal" role="dialog">
                 <div class="modal-dialog"> -->
