@@ -45,10 +45,12 @@ function fetchUser(event, username){
         }
         )
     })
-    createGameSession()
+    playGame()
 }
 
 function playGame(){
+    const siginInForm = document.querySelector("#sign-in")
+    siginInForm.innerHTML = ""
     const playGameButton = document.createElement("button")
     playGameButton.id = "start-button"
     playGameButton.innerText = "Start Game"
