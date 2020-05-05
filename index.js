@@ -8,7 +8,6 @@ const gameHeader = document.querySelector("#game-header")
 const choiceList = document.querySelector("#choices")
 const points = document.getElementById('points')
 
-
 document.addEventListener("DOMContentLoaded", () => {
     playGame()
 })
@@ -75,7 +74,6 @@ function fetchSong(){
 // }
 
 function createGameSong(songChoice){
-    // debugger
     fetch("http://localhost:3000/game_sessions/last")
     .then(response => response.json())
     .then(session => {
@@ -102,7 +100,6 @@ function createGameSong(songChoice){
 }
 
 // function patchGameSession(songChoice){
-//     // debugger
 //     // attributes: {
 //     //     songs: []
 //     //     }
@@ -133,12 +130,30 @@ function renderAudio(songChoice){
     timer.textContent = "10 seconds remaining"
     const audioPlayer = document.createElement("audio")
     audioPlayer.id = "current-game-song"
-    audioPlayer.controls = "controls"
+    // audioPlayer.controls = "controls"
     const songUrl = songChoice.attributes.source 
     audioPlayer.src = songUrl 
     audioPlayer.type="audio/mp3"
-    audioPlayer.volume = 0.1
+    audioPlayer.volume = 0.3
+    audioPlayer.autoplay = true
     audioContainer.append(audioPlayer)
+
+    let input = document.createElement("input")
+    input.textContent = "Volume"
+    input.setAttribute("id", "ex1")
+    input.setAttribute("data-slider-id", "ex1Slider")
+    input.setAttribute("type", "text")
+    input.setAttribute("data-slider-min", "0")
+    input.setAttribute("data-slider-max", "1")
+    input.setAttribute("data-slider-step", "0.1")
+    audioContainer.append(input)
+    let slider = new Slider('#ex1', {
+        value: 0.3,
+        precision: 1
+    });
+    slider.on("change", () => {
+        audioPlayer.volume = slider.getValue()
+    })
 
     if (score === 0){
         points.innerText = "0 Points"
@@ -147,7 +162,8 @@ function renderAudio(songChoice){
     }
  
     
-    audioPlayer.addEventListener("play", () => fetchChoices(songChoice), { once: true})
+    // audioPlayer.addEventListener("play", () => fetchChoices(songChoice), { once: true})
+    fetchChoices(songChoice)
     // let start = document.createElement("button")
     // start.classList = "btn btn-primary btn-large"
     // start.textContent = "Start"
@@ -205,7 +221,6 @@ function renderChoices(choices, songChoice){
             button.innerText = `${choice["title"]} - ${choice["artist"]}`
         }        
         button.type = "button"
-        // debugger
         button.id = choice.id
         button.classList = "btn btn-primary btn-large btn-block"
         button.addEventListener("click", () => handleChoice(choices, songChoice))
@@ -220,6 +235,22 @@ function handleChoice(choices, songChoice) {
 
     if (event.target.id === songChoice.id){
         // $("#myModal").modal();
+        // let sessionId = localStorage.sessionId
+        // let songId = localStorage.songId
+
+        // let gameSongObj = {
+        //     correct_guess: true
+        // }
+        
+        // fetch('http://localhost:3000/game_songs/last', {
+        //     method: 'PATCH',
+        //     headers: {
+        //         "Content-Type": "application/json",
+        //         "Accept": "application/json"
+        //     },
+        //     body: JSON.stringify(gameSongObj)
+                
+        // })
         if (timeLeft >= 5){
             score += 100
         } else {
@@ -232,6 +263,12 @@ function handleChoice(choices, songChoice) {
         correctMessageDiv.id = "correct-message"
         correctMessageDiv.innerText = "Correct! Keep Going!"
         gameHeader.append(correctMessageDiv)
+        let list = document.querySelector("#choices")
+        let items = list.childNodes
+        items.forEach(li => {
+            let listNodes = li.childNodes
+            listNodes[0].setAttribute("disabled", "true")
+        })
 
         clearInterval(timerId)
         fetchSong()
@@ -246,6 +283,13 @@ function handleChoice(choices, songChoice) {
         incorrectMessageDiv.innerText = "Incorrect! Game Over!"
         gameHeader.append(incorrectMessageDiv)
 
+        let list = document.querySelector("#choices")
+        let items = list.childNodes
+        items.forEach(li => {
+            let listNodes = li.childNodes
+            listNodes[0].setAttribute("disabled", "true")
+        })
+
         let tryAgainButton = document.createElement("button")
         tryAgainButton.innerText = "Try Again?"
         tryAgainButton.classList = "btn btn-large btn-primary"
@@ -254,12 +298,14 @@ function handleChoice(choices, songChoice) {
             incorrectMessageDiv.remove()
             tryAgainButton.remove()
             choiceList.innerHTML = ""
+            createGameSession()
             fetchSong()
         })
         incorrectMessageDiv.append(tryAgainButton)
         
         let correctChoice = document.getElementById(songChoice.id)
         correctChoice.style = "background-color:green"
+        
         clearInterval(timerId)
     }
     // const blah = document.getElementById("choices")
@@ -293,6 +339,7 @@ function startTimer(duration){
             tryAgainButton.addEventListener("click", () => {
                 outOfTime.remove()
                 tryAgainButton.remove()
+                createGameSession()
                 fetchSong()
             })
             outOfTime.append(tryAgainButton)
