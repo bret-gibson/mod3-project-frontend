@@ -10,6 +10,12 @@ li{
     text-align: center;
 }
 
+
+#header-container {
+    text-align: center;
+    padding: 150px;
+}
+
 /* #points, #timer {
     display: inline-block;
 } */
