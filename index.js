@@ -17,18 +17,36 @@ function playGame(){
     const playGameButton = document.createElement("button")
     playGameButton.id = "start-button"
     playGameButton.innerText = "Start Game"
-    // const playGameButton = document.createElement("img")
+    // const playGameButton = document.createElement("img")                  
     // playGameButton.id = "start-button"
     // playGameButton.src = "http://clipart-library.com/images/di9rakrnT.jpg"
 
     mainContainer.append(playGameButton)
 
     playGameButton.addEventListener("click", () => {
+        playGameButton.remove()
         createGameSession()
         fetchSong()
-        playGameButton.remove()
     })
 
+}
+
+function createGameSession(){
+    
+    fetch('http://localhost:3000/game_sessions', {
+        method: 'POST',
+        headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({})
+        })
+    // .then(response => response.json())
+    // .then(session => {
+    //     debugger
+    //     localStorage.setItem("sessionId", session.data.id)
+    // })
+    // fetchSong()
 }
 
 function fetchSong(){
@@ -41,42 +59,31 @@ function fetchSong(){
         const songChoice = sortedSongs[Math.floor(Math.random() * sortedSongs.length)]
         const songUrl = songChoice.attributes.source
         localStorage.setItem("songId", songChoice.id)
+
         createGameSong(songChoice)
-        // patchGameSession(songChoice)
         renderAudio(songChoice)
     })
 }
 
-function createGameSession(songChoice){
-    
-    fetch('http://localhost:3000/game_sessions', {
-        method: 'POST',
-        headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-        })
-        })
-    // .then(data => {
-    //     console.log(data)
-    //     debugger })
+// function getGameSession(){
+//     // debugger -- doesn't hit this at all..
+//     fetch("http://localhost:3000/game_sessions/last")
+//     .then(response => response.json())
+//     .then(session => {
+//         localStorage.setItem("sessionId", session.data.id)
+//     })
+// }
 
-    // fetchSong()
-
-}
-
-function getGameSession(){
+function createGameSong(songChoice){
+    // debugger
     fetch("http://localhost:3000/game_sessions/last")
     .then(response => response.json())
     .then(session => {
         localStorage.setItem("sessionId", session.data.id)
     })
-}
 
-function createGameSong(songChoice){
-    let sessionId = localStorage.getItem("sessionId")
-    let songId = localStorage.getItem("songId")
+    let sessionId = localStorage.sessionId
+    let songId = localStorage.songId
     
     let gameSongObj = {
         game_session_id: sessionId,
@@ -84,7 +91,6 @@ function createGameSong(songChoice){
         correct_guess: false
     }
     
-
     fetch('http://localhost:3000/game_songs', {
         method: 'POST',
         headers: {
@@ -93,8 +99,6 @@ function createGameSong(songChoice){
                 },
         body: JSON.stringify(gameSongObj)
         })
-
-
 }
 
 // function patchGameSession(songChoice){
@@ -131,12 +135,19 @@ function renderAudio(songChoice){
     audioPlayer.id = "current-game-song"
     audioPlayer.controls = "controls"
     const songUrl = songChoice.attributes.source 
-    audioPlayer.src = songUrl   //gamesong
+    audioPlayer.src = songUrl 
     audioPlayer.type="audio/mp3"
     audioPlayer.volume = 0.1
-    audioPlayer.addEventListener("play", () => fetchChoices(songChoice), { once: true})
     audioContainer.append(audioPlayer)
-    document.getElementById("points").innerText = "0 Points"
+
+    if (score === 0){
+        points.innerText = "0 Points"
+    } else {
+        points.innerText = `${score} Points`
+    }
+ 
+    
+    audioPlayer.addEventListener("play", () => fetchChoices(songChoice), { once: true})
     // let start = document.createElement("button")
     // start.classList = "btn btn-primary btn-large"
     // start.textContent = "Start"
@@ -239,6 +250,7 @@ function handleChoice(choices, songChoice) {
         tryAgainButton.innerText = "Try Again?"
         tryAgainButton.classList = "btn btn-large btn-primary"
         tryAgainButton.addEventListener("click", () => {
+            score = 0
             incorrectMessageDiv.remove()
             tryAgainButton.remove()
             choiceList.innerHTML = ""
