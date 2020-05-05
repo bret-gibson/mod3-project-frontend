@@ -26,7 +26,10 @@ function signIn(){
     signInForm.append(usernameInput, submitButton)
     mainContainer.append(signInForm)
     // const username = usernameInput.value
-    signInForm.addEventListener("submit", () => {fetchUser(event, usernameInput.value)})
+    signInForm.addEventListener("submit", () => {
+        fetchUser(event, usernameInput.value)
+
+    })
 }
 
 function fetchUser(event, username){
@@ -45,7 +48,52 @@ function fetchUser(event, username){
         }
         )
     })
+    displayHighScores()
+    displayUserHighScores()
     playGame()
+}
+
+function displayHighScores(){
+    const column1 = document.getElementById("column1")
+    column1.innerHTML = ""
+    const hiScoreList = document.createElement("ul")
+    hiScoreList.id = "high-scores-list"
+    column1.append(hiScoreList)
+
+    fetch("http://localhost:3000/game_sessions/top_scores")
+    .then(response => response.json())
+    .then(hiScoreArray => {
+            hiScoreArray["data"].forEach(game => {
+                let hiScoreItem = document.createElement("li")
+                hiScoreItem.id = "high-scores-item"
+                hiScoreItem.innerText = game["attributes"]["points"]
+                hiScoreList.append(hiScoreItem)
+            })})
+}
+
+function displayUserHighScores(){
+    let userId = localStorage["userid"]
+    
+    const userScoreList = document.createElement("ul")
+    userScoreList.innerHTML = ""
+    userScoreList.id = "user-scores-list"
+    const column3 = document.getElementById("column3")
+    column3.append(userScoreList)
+
+    fetch(`http://localhost:3000/users/${userId}`)
+    .then(response => response.json())
+    .then(userData => {
+        let games = userData["data"]["attributes"]["game_sessions"]
+        let pointsArray = games.map(game => game.points)
+        let sortedPoints = pointsArray.sort(function(a, b){return b-a})
+        sortedPoints.forEach(points => {
+            let userScoreItem = document.createElement("li")
+            userScoreItem.id = "high-scores-item"
+            userScoreItem.innerText = points
+            userScoreList.append(userScoreItem)
+        })
+    })
+    
 }
 
 function playGame(){
@@ -69,24 +117,25 @@ function playGame(){
 }
 
 function createGameSession(){
-    
     fetch('http://localhost:3000/game_sessions', {
         method: 'POST',
         headers: {
-        'Accept': 'application/json',
+        'Accept': 'application/json, text/plain, */*',
         'Content-Type': 'application/json'
         },
         body: JSON.stringify({
             user_id: localStorage["userid"]
         })
-        })
+    })
+}
+        // .then(response => response.text())
+        // .then(data => console.log(data))
     // .then(response => response.json())
     // .then(session => {
     //     debugger
     //     localStorage.setItem("sessionId", session.data.id)
     // })
     // fetchSong()
-}
 
 function fetchSong(){
     audioContainer.innerHTML = ""
@@ -275,23 +324,6 @@ function handleChoice(choices, songChoice) {
     let timeLeft = parseInt(document.getElementById("timer").innerText)
 
     if (event.target.id === songChoice.id){
-        // $("#myModal").modal();
-        // let sessionId = localStorage.sessionId
-        // let songId = localStorage.songId
-
-        // let gameSongObj = {
-        //     correct_guess: true
-        // }
-        
-        // fetch('http://localhost:3000/game_songs/last', {
-        //     method: 'PATCH',
-        //     headers: {
-        //         "Content-Type": "application/json",
-        //         "Accept": "application/json"
-        //     },
-        //     body: JSON.stringify(gameSongObj)
-                
-        // })
         if (timeLeft >= 5){
             score += 100
         } else {
@@ -315,6 +347,7 @@ function handleChoice(choices, songChoice) {
         fetchSong()
     } else {
         patchPoints()
+        isHiScore()
         event.target.style = "background-color:#c90000; border-color: #c90000"
         const audio = document.querySelector("audio")
         audio.pause()
@@ -353,13 +386,6 @@ function handleChoice(choices, songChoice) {
         
         clearInterval(timerId)
     }
-    // const blah = document.getElementById("choices")
-    // let buttons = blah.childNodes
-    // buttons.forEach(button => {
-    //     let att = createAttribute("disabled")
-    //     att.value = "true"
-    //     button.setAttribute(att)
-    // })
 }
 
 function startTimer(duration){
@@ -371,6 +397,7 @@ function startTimer(duration){
     function countdown() {
         if (timeLeft < 0) {
             patchPoints()
+            isHiScore()
             clearTimeout(timerId)
             const audio = document.querySelector("audio")
             audio.pause()
@@ -412,4 +439,31 @@ function patchPoints(){
                 },
         body: JSON.stringify(sessionObj)
     })
+}
+
+function isHiScore(){
+    fetch("http://localhost:3000/game_sessions/top_scores")
+    .then(response => response.json())
+    .then(sessions => {
+        let lowestHiScore = sessions["data"][4]["attributes"]["points"]
+        let result = lowestHiScore < score
+        if (result === true){
+            displayHighScores()
+        }
+        
+        // return result
+            // if (lowestHiScore < score) {
+            //     debugger
+            //     return true
+            // } else {
+            //     debugger
+            //     return false
+            // }
+    })
+    // .then(result => {
+    //     (if result === true){
+    //         displayHighScores()
+    //     }
+    // })
+    // debugger
 }
