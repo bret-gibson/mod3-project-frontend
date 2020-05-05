@@ -1,3 +1,4 @@
+let username = ""
 let countdown
 let timerId
 let score = 0
@@ -9,8 +10,43 @@ const choiceList = document.querySelector("#choices")
 const points = document.getElementById('points')
 
 document.addEventListener("DOMContentLoaded", () => {
-    playGame()
+    signIn()
+    // playGame()
 })
+
+function signIn(){
+    const signInForm = document.createElement("form")
+    signInForm.id = "sign-in"
+    const usernameInput = document.createElement("input")
+    usernameInput.setAttribute("type", "text")
+    usernameInput.id = "username"
+    usernameInput.placeholder = "Sign In"
+    const submitButton = document.createElement("input")
+    submitButton.setAttribute("type", "submit")
+    signInForm.append(usernameInput, submitButton)
+    mainContainer.append(signInForm)
+    // const username = usernameInput.value
+    signInForm.addEventListener("submit", () => {fetchUser(event, usernameInput.value)})
+}
+
+function fetchUser(event, username){
+    event.preventDefault()
+    console.log(username)
+    
+
+    fetch("http://localhost:3000/users/")
+    .then(response => response.json())
+    .then(usersArray => {
+        usersArray["data"].forEach((arrayItem) => {
+            if (username === arrayItem["attributes"]["username"]){
+                let userId = (arrayItem["id"])
+                localStorage["userid"] = userId
+            }
+        }
+        )
+    })
+    createGameSession()
+}
 
 function playGame(){
     const playGameButton = document.createElement("button")
@@ -38,7 +74,9 @@ function createGameSession(){
         'Accept': 'application/json',
         'Content-Type': 'application/json'
         },
-        body: JSON.stringify({})
+        body: JSON.stringify({
+            user_id: localStorage["userid"]
+        })
         })
     // .then(response => response.json())
     // .then(session => {

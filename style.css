@@ -16,6 +16,9 @@ li{
     padding: 150px;
 }
 
+#sign-in {
+    text-align: center;
+}
 /* #points, #timer {
     display: inline-block;
 } */
