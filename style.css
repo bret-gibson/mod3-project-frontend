@@ -25,16 +25,16 @@ section {
     padding: 150px;
 }
 
-#sign-in {
+/* #sign-in {
     /* text-align: center; */
-}
+/* } */
 /* #points, #timer {
     display: inline-block;
 } */
 
-#audio-container, #correct-message, #incorrect-message, #out-of-time {
+/* #audio-container, #correct-message, #incorrect-message, #out-of-time {
     /* text-align: center; */
-}
+/* } */ 
 
 #start-button {
     border: none;

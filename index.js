@@ -136,7 +136,8 @@ function createGameSong(songChoice){
             "Accept": "application/json"
                 },
         body: JSON.stringify(gameSongObj)
-        })
+    })
+
 }
 
 // function patchGameSession(songChoice){
@@ -313,6 +314,7 @@ function handleChoice(choices, songChoice) {
         clearInterval(timerId)
         fetchSong()
     } else {
+        patchPoints()
         event.target.style = "background-color:#c90000; border-color: #c90000"
         const audio = document.querySelector("audio")
         audio.pause()
@@ -368,6 +370,7 @@ function startTimer(duration){
     
     function countdown() {
         if (timeLeft < 0) {
+            patchPoints()
             clearTimeout(timerId)
             const audio = document.querySelector("audio")
             audio.pause()
@@ -394,17 +397,19 @@ function startTimer(duration){
     }
 }
 
-// function startAudio(audioPlayer, start) {
-//     audioPlayer.play()
-//     start.textContent = "Stop music and quit"
-//     start.addEventListener("click", (event) => quitGame(audioPlayer))
-// }
-
-// function quitGame(audioPlayer){
-//     clearTimeout(timerId)
-//     audioPlayer.pause()
-//     audioContainer.innerHTML = ""
-//     choiceList.innerHTML = ""
-//     points.innerText = "0 Points"
-//     fetchGameSong()
-// }
+function patchPoints(){
+    //whenever a user loses or time runs out,
+    //fetch patch to update the points for that game session
+    let sessionId = localStorage.sessionId
+    let sessionObj = {
+        points: score
+    }
+    fetch(`http://localhost:3000/game_sessions/${sessionId}`, {
+        method: 'PATCH',
+        headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+                },
+        body: JSON.stringify(sessionObj)
+    })
+}
