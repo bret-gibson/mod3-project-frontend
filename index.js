@@ -242,9 +242,11 @@ function handleChoice(choices, songChoice) {
         audioContainer.innerHTML = ""
 
         let incorrectMessageDiv = document.createElement("div")
+
         incorrectMessageDiv.id = "incorrect-message"
         incorrectMessageDiv.innerText = "Incorrect! Game Over!"
         gameHeader.append(incorrectMessageDiv)
+
 
         let tryAgainButton = document.createElement("button")
         tryAgainButton.innerText = "Try Again?"
@@ -256,7 +258,9 @@ function handleChoice(choices, songChoice) {
             choiceList.innerHTML = ""
             fetchSong()
         })
-        incorrectMessageDiv.append(tryAgainButton)
+        let brTag = document.createElement("br")
+        let brTag2 = document.createElement("br")
+        incorrectMessageDiv.append(brTag, tryAgainButton, brTag2)
         
         let correctChoice = document.getElementById(songChoice.id)
         correctChoice.style = "background-color:green"
