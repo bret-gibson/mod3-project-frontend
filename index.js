@@ -8,25 +8,35 @@ const choiceContainer = document.querySelector("#choice-container")
 const gameHeader = document.querySelector("#game-header")
 const choiceList = document.querySelector("#choices")
 const points = document.getElementById('points')
+const header = document.querySelector("div")
+const tooltip = document.querySelector("span")
+// const userId = header.id
 
 document.addEventListener("DOMContentLoaded", () => {
+    column1.style.display = "none"
+    column3.style.display = "none"
     signIn()
     // playGame()
 })
 
 function signIn(){
+    // localStorage.clear()
     const signInForm = document.createElement("form")
     signInForm.id = "sign-in"
     const usernameInput = document.createElement("input")
     usernameInput.setAttribute("type", "text")
     usernameInput.id = "username"
-    usernameInput.placeholder = "Sign In"
+    usernameInput.placeholder = "Username"
     const submitButton = document.createElement("input")
     submitButton.setAttribute("type", "submit")
+    submitButton.value = "Log In"
     signInForm.append(usernameInput, submitButton)
     mainContainer.append(signInForm)
     // const username = usernameInput.value
     signInForm.addEventListener("submit", () => {
+        // localStorage["userId"]
+        column1.style.display = "block"
+        column3.style.display = "block"
         fetchUser(event, usernameInput.value)
 
     })
@@ -34,28 +44,37 @@ function signIn(){
 
 function fetchUser(event, username){
     event.preventDefault()
-    console.log(username)
-    
+
+    const header = document.querySelector('div')
+    header.innerHTML = 
+    "<h1 style='text-align:center;'>Song Guesser</h1> <h3 style='text-align:center;'>How well do you know top songs from the last three decades?</h3><br><h4>Rules:</h4><p>Once you hit start, songs will play automatically and a selection of choices will display below the timer. You have 10 seconds to get the answer right or you lose! +100 points for an answer within 5 seconds, +50 points otherwise. Play until you get a wrong answer!</p><br>"
 
     fetch("http://localhost:3000/users/")
     .then(response => response.json())
     .then(usersArray => {
         usersArray["data"].forEach((arrayItem) => {
             if (username === arrayItem["attributes"]["username"]){
-                let userId = (arrayItem["id"])
-                localStorage["userId"] = userId
+                // let userId = 
+                // localStorage.setItem("userId", `${arrayItem["id"]}`)
+                header.id = arrayItem["id"]
+                // localStorage["userId"] = (arrayItem["id"])
+                // localStorage["userId"] = userId
             }
         }
         )
+        displayHighScores()
+        displayUserHighScores()
+        playGame()
     })
-    displayHighScores()
-    displayUserHighScores()
-    playGame()
+    // displayHighScores()
+    // displayUserHighScores()
+    // playGame()
 }
 
 function displayHighScores(){
     const column1 = document.getElementById("column1")
     column1.innerHTML = ""
+    column1.innerHTML = "<b>All High Scores</b>"
     const hiScoreList = document.createElement("ul")
     hiScoreList.id = "high-scores-list"
     column1.append(hiScoreList)
@@ -63,28 +82,32 @@ function displayHighScores(){
     fetch("http://localhost:3000/game_sessions/top_scores")
     .then(response => response.json())
     .then(hiScoreArray => {
+        // debugger
             hiScoreArray["data"].forEach(game => {
                 let hiScoreItem = document.createElement("li")
                 hiScoreItem.id = "high-scores-item"
-                hiScoreItem.innerText = game["attributes"]["points"]
+                hiScoreItem.innerText = `${game["attributes"]["user"]["username"]} - ${game["attributes"]["points"]}`
                 hiScoreList.append(hiScoreItem)
             })})
 }
 
 function displayUserHighScores(){
-    let userId = localStorage["userid"]
+    // let userId = localStorage["userId"]
+    // let userId = localStorage.getItem("userId")
     const column3 = document.getElementById("column3")
     column3.innerHTML = ""    
-
+    column3.style.display = "show"
+    column3.innerHTML = "<b>Your High Scores</b>"
     const userScoreList = document.createElement("ul")
     userScoreList.innerHTML = ""
     userScoreList.id = "user-scores-list"
     
     column3.append(userScoreList)
-
-    fetch(`http://localhost:3000/users/${userId}`)
+    
+    fetch(`http://localhost:3000/users/${header.id}`)
     .then(response => response.json())
     .then(userData => {
+    
         let games = userData["data"]["attributes"]["game_sessions"]
         let pointsArray = games.map(game => game.points)
         let sortedPoints = pointsArray.sort(function(a, b){return b-a})
@@ -98,7 +121,15 @@ function displayUserHighScores(){
             userScoreList.append(userScoreItem)
         })
     })
-    
+
+    const statsButton = document.createElement("button")
+    statsButton.innerText = "My Stats"
+    statsButton.id = 'stats-button'
+    statsButton.classList = "btn btn-primary btn-large text-center"
+    statsButton.setAttribute("data-toggle", "modal")
+    statsButton.setAttribute("data-target", "#userModal")
+    column3.append(statsButton)
+    displayUserStats()
 }
 
 function playGame(){
@@ -129,12 +160,14 @@ function createGameSession(){
         'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            user_id: localStorage["userid"]
+            user_id: header.id
         })
     })
     .then(response => response.json())
-    .then(data => { 
-        localStorage["sessionId"] = data["data"]["id"]
+    .then(data => {
+        tooltip.id = `${data["data"]["id"]}`
+        // localStorage.setItem("sessionId", `${data["data"]["id"]}`)
+        // localStorage["sessionId"] = data["data"]["id"]
     })
         // .then(response => response.text())
         // .then(data => console.log(data))
@@ -173,11 +206,14 @@ function fetchSong(){
 
 function createGameSong(songChoice){
 
-    let sessionId = localStorage["sessionId"]
-    let songId = localStorage.songId
-    
+    // let sessionId = localStorage["sessionId"]
+    // let songId = localStorage.songId
+
+    // let sessionId = localStorage.getItem("sessionId")
+    let songId = localStorage.getItem("songId")
+
     let gameSongObj = {
-        game_session_id: sessionId,
+        game_session_id: tooltip.id,
         song_id: songId,
         correct_guess: false
     }
@@ -221,7 +257,7 @@ function createGameSong(songChoice){
 
 function renderAudio(songChoice){
     const timer = document.querySelector("#timer")
-    timer.textContent = "10 seconds remaining"
+    timer.textContent = "10"
     const audioPlayer = document.createElement("audio")
     audioPlayer.id = "current-game-song"
     // audioPlayer.controls = "controls"
@@ -351,8 +387,9 @@ function handleChoice(choices, songChoice) {
         fetchSong()
     } else {
         patchPoints()
-        isUserHiScore()
         isHiScore()
+        isUserHiScore()
+
         event.target.style = "background-color:#c90000; border-color: #c90000"
         const audio = document.querySelector("audio")
         audio.pause()
@@ -402,8 +439,9 @@ function startTimer(duration){
     function countdown() {
         if (timeLeft < 0) {
             patchPoints()
-            isUserHiScore()
             isHiScore()
+            isUserHiScore()
+
             clearTimeout(timerId)
             const audio = document.querySelector("audio")
             audio.pause()
@@ -424,7 +462,7 @@ function startTimer(duration){
             outOfTime.append(tryAgainButton)
             choiceContainer.append(outOfTime)
         } else {
-            timer.textContent = timeLeft + ' seconds remaining'
+            timer.textContent = timeLeft
             timeLeft--
         }
     }
@@ -433,11 +471,11 @@ function startTimer(duration){
 function patchPoints(){
     //whenever a user loses or time runs out,
     //fetch patch to update the points for that game session
-    let sessionId = localStorage.sessionId
+    // let sessionId = localStorage.getItem("sessionId")
     let sessionObj = {
         points: score
     }
-    fetch(`http://localhost:3000/game_sessions/${sessionId}`, {
+    fetch(`http://localhost:3000/game_sessions/${tooltip.id}`, {
         method: 'PATCH',
         headers: {
             "Content-Type": "application/json",
@@ -461,9 +499,8 @@ function isHiScore(){
 }
 
 function isUserHiScore(){
-    let userId = localStorage["userId"]
+    // let userId = localStorage.getItem("userId")
     let userHiScoresArray = JSON.parse(localStorage.getItem("userHiScores"))
-    
     // let isCurrentAHiScore = userHiScoresArray.some(element => {
     //     return element < score
     // })
@@ -472,6 +509,7 @@ function isUserHiScore(){
     // }
 
     let isCurrentAHiScore = userHiScoresArray[4]
+
     let userScoreResult = isCurrentAHiScore < score
     if (userScoreResult === true){
         displayUserHighScores()
@@ -484,4 +522,53 @@ function isUserHiScore(){
     //     let userGameSessionsArray = data["data"]["attributes"]["game_sessions"]
 
     // })
+}
+
+function displayUserStats(){
+    // let userId = localStorage.getItem("userId")
+
+  //   points = data["data"][0]["attributes"]['points']
+
+    let totalPoints = 0
+    let totalGames = 0
+    let username
+    // let songCategories = []
+    fetch('http://localhost:3000/game_sessions')
+    .then(response => response.json())
+    .then(data => {
+        let songCategories = []
+        data["data"].forEach(session => {
+            if (session["attributes"]["user"]["id"] === parseInt(header.id)){
+                username = session["attributes"]["user"]["username"]
+                session["attributes"]["songs"].forEach(song => {
+                    songCategories.push(song["genre"])
+                })
+                totalGames += 1
+                totalPoints += parseInt(session["attributes"]["points"])
+            }
+
+        })
+        let countObj = {}
+        let countFunc = keys => {
+            countObj[keys] = ++countObj[keys] || 1;
+        }
+          
+        songCategories.forEach(countFunc)
+
+        const statsHeader = document.getElementById("name-header")
+        statsHeader.innerText = `Stats for ${username}`
+
+        const globalGamesPlayed = document.getElementById("user-games-played")
+        globalGamesPlayed.innerText = `Number of Games Played: ${totalGames}`
+
+        const globalPoints = document.getElementById("user-global-points")
+        globalPoints.innerText = `Total Points Scored: ${totalPoints}`
+
+        const categoriesUl = document.getElementById("categories")
+        for (const key in countObj) {
+            let categoryItem = document.createElement("li")
+            categoryItem.innerText = `${key}: ${countObj[key]}`
+            categoriesUl.append(categoryItem)
+        }
+    })
 }

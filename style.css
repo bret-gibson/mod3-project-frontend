@@ -1,45 +1,74 @@
+body {
+    background: #ab7ebd;
+}
+
 li{
     padding: 4px;
+    list-style-type: none
 }
 
 section {
     text-align: center;
 }
 
-#columns {
-    text-align: center;
+#timer {
+    color: red;
+    font-size: 32px;
+    font-weight: bold;
 }
+
+/* #columns {
+    ali: center;
+} */
+
+#column1, #column3 {
+    /* display: none; */
+    border-radius: 25px;
+    background-color: white;
+    border: 2px solid black;
+    padding: 20px;
+    width: auto;
+    /* align-items: center; */
+    list-style-type: none;
+    white-space: no-wrap;
+    overflow: hidden;
+    /* height: 150px; */
+  }
+  #column1 ul {
+      align-content: flex-start;
+  }
+
+  #column2{
+    border-radius: 25px;
+    white-space: no-wrap;
+    overflow: hidden;
+    background-color: white;
+    border: 2px solid black;
+    padding: 20px;
+    align-items: center;
+    text-align: center;
+    list-style-type: none;
+    margin-left: 10px;
+    margin-right:10px;
+    /* height: 150px; */
+  }
 
 #choices{
     list-style-type: none;
+    padding: 0px;
 }
-
-#game-header {
-    text-align: center;
-    
-}
-
 
 #header-container {
     text-align: center;
     padding: 150px;
 }
 
-/* #sign-in {
-    /* text-align: center; */
-/* } */
-/* #points, #timer {
-    display: inline-block;
-} */
-
-/* #audio-container, #correct-message, #incorrect-message, #out-of-time {
-    /* text-align: center; */
-/* } */ 
-
 #start-button {
-    border: none;
-    background: none;
+    border: solid #79db89;
+    border-radius: 25px;    
+    background: #79db89;
     position: absolute;
+    padding: 20px;
     top: 50%;
     left: 50%;
     z-index: 1;
@@ -51,4 +80,44 @@ section {
 
 #ex1Slider .slider-selection{
     background: #BABABA;
+}
+
+#high-scores-list{
+    padding: 0px;
+    text-align: center;
+}
+
+#user-scores-list{
+    padding: 0px;
+    text-align: center;
+}
+
+#stats-button{
+    text-align: center;
+    align-content: flex-start;
+
+    display:flex;
+    justify-content: center;
+    align-content: center;
+    margin-left: 28px;
+}
+
+.btn {
+    background-color: #ab7ebd;
+    border: black;
+}
+
+/* .btn-primary, .btn-primary:active, .btn-primary:visited */
+
+.btn-primary:hover{
+    background-color: #ab7ebd !important;
+    border: black !important;
+}
+
+.row{
+    flex-wrap: nowrap
+}
+
+#game-header {
+    text-align: center;
 }

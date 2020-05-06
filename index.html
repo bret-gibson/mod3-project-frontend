@@ -12,13 +12,19 @@
 
     </head>
     <body>
-        <div id='header-container'>
+        <!-- <div id='header-container'>
             <h1>Song Guesser</h1>
+        </div> -->
+
+        <div class="container">
+            <h1 style="text-align:center;">Song Guesser</h1>
+            <h3 style="text-align:center;">How well do you know top songs from the last three decades?</h3>
+            <br>
         </div>
 
         <!-- Bootstrap Columns -->
         <div class="container" id="columns">
-            <div class="row">
+            <div class="row" id="row1">
               <div class="col-2" id="column1">
                 <!-- High Scores: -->
               </div>
@@ -57,22 +63,29 @@
 
  
             <!-- Modal -->
-            <!-- <div class="modal fade" id="myModal" role="dialog">
-                <div class="modal-dialog"> -->
-                
+        <div class="modal fade" id="userModal" role="dialog">
+            <div class="modal-dialog">
                 <!-- Modal content-->
-                <!-- <div class="modal-content">
-                    <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Modal Header</h4>
-                    </div>
+                <div class="modal-content">
+                    <!-- <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Modal Header</h4>
+                    </div> -->
                     <div class="modal-body">
-                    <p>Some text in the modal.</p>
+                        <h3 id="name-header">UserName's Stats</h3>
+                        <br>
+                        <p id="user-games-played">Number of Games Played: </p>
+                        <p id="user-global-points">Total Points Scored: </p>
+                        <p>Category Song Count:</p>
+                            <ul id="categories">
+                            </ul>
                     </div>
                     <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
                     </div>
-                </div> -->
+                </div>
+            </div>
+        </div>
       
     </div>
   </div>
