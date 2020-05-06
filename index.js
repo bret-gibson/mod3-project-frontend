@@ -43,7 +43,7 @@ function fetchUser(event, username){
         usersArray["data"].forEach((arrayItem) => {
             if (username === arrayItem["attributes"]["username"]){
                 let userId = (arrayItem["id"])
-                localStorage["userid"] = userId
+                localStorage["userId"] = userId
             }
         }
         )
@@ -73,11 +73,13 @@ function displayHighScores(){
 
 function displayUserHighScores(){
     let userId = localStorage["userid"]
-    
+    const column3 = document.getElementById("column3")
+    column3.innerHTML = ""    
+
     const userScoreList = document.createElement("ul")
     userScoreList.innerHTML = ""
     userScoreList.id = "user-scores-list"
-    const column3 = document.getElementById("column3")
+    
     column3.append(userScoreList)
 
     fetch(`http://localhost:3000/users/${userId}`)
@@ -86,7 +88,10 @@ function displayUserHighScores(){
         let games = userData["data"]["attributes"]["game_sessions"]
         let pointsArray = games.map(game => game.points)
         let sortedPoints = pointsArray.sort(function(a, b){return b-a})
-        sortedPoints.forEach(points => {
+        let slicedPoints = sortedPoints.slice(0,5)
+        localStorage.setItem("userHiScores", JSON.stringify(slicedPoints))
+        
+        slicedPoints.forEach(points => {
             let userScoreItem = document.createElement("li")
             userScoreItem.id = "high-scores-item"
             userScoreItem.innerText = points
@@ -127,7 +132,10 @@ function createGameSession(){
             user_id: localStorage["userid"]
         })
     })
-}
+    .then(response => response.json())
+    .then(data => { 
+        localStorage["sessionId"] = data["data"]["id"]
+    })
         // .then(response => response.text())
         // .then(data => console.log(data))
     // .then(response => response.json())
@@ -136,6 +144,7 @@ function createGameSession(){
     //     localStorage.setItem("sessionId", session.data.id)
     // })
     // fetchSong()
+}
 
 function fetchSong(){
     audioContainer.innerHTML = ""
@@ -163,13 +172,8 @@ function fetchSong(){
 // }
 
 function createGameSong(songChoice){
-    fetch("http://localhost:3000/game_sessions/last")
-    .then(response => response.json())
-    .then(session => {
-        localStorage.setItem("sessionId", session.data.id)
-    })
 
-    let sessionId = localStorage.sessionId
+    let sessionId = localStorage["sessionId"]
     let songId = localStorage.songId
     
     let gameSongObj = {
@@ -347,6 +351,7 @@ function handleChoice(choices, songChoice) {
         fetchSong()
     } else {
         patchPoints()
+        isUserHiScore()
         isHiScore()
         event.target.style = "background-color:#c90000; border-color: #c90000"
         const audio = document.querySelector("audio")
@@ -397,6 +402,7 @@ function startTimer(duration){
     function countdown() {
         if (timeLeft < 0) {
             patchPoints()
+            isUserHiScore()
             isHiScore()
             clearTimeout(timerId)
             const audio = document.querySelector("audio")
@@ -451,19 +457,31 @@ function isHiScore(){
             displayHighScores()
         }
         
-        // return result
-            // if (lowestHiScore < score) {
-            //     debugger
-            //     return true
-            // } else {
-            //     debugger
-            //     return false
-            // }
     })
-    // .then(result => {
-    //     (if result === true){
-    //         displayHighScores()
-    //     }
+}
+
+function isUserHiScore(){
+    let userId = localStorage["userId"]
+    let userHiScoresArray = JSON.parse(localStorage.getItem("userHiScores"))
+    
+    // let isCurrentAHiScore = userHiScoresArray.some(element => {
+    //     return element < score
     // })
-    // debugger
+    // if (isCurrentAHiScore){
+    //     displayUserHighScores()
+    // }
+
+    let isCurrentAHiScore = userHiScoresArray[4]
+    let userScoreResult = isCurrentAHiScore < score
+    if (userScoreResult === true){
+        displayUserHighScores()
+    }
+    
+    // fetch(`http://localhost:3000/users/${userId}`)
+    // .then(response => response.json())
+    // .then(data => {
+    //     debugger
+    //     let userGameSessionsArray = data["data"]["attributes"]["game_sessions"]
+
+    // })
 }
