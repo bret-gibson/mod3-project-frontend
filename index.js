@@ -496,7 +496,7 @@ function patchPoints() {
 
 function isHiScore() {
   // fetch("http://localhost:3000/game_sessions/top_scores")
-  fetch("https://song-guesser-backend.herokuapp.com/top_scores")
+  fetch("https://song-guesser-backend.herokuapp.com/game_sessions/top_scores")
     .then((response) => response.json())
     .then((sessions) => {
       let lowestHiScore = sessions["data"][4]["attributes"]["points"];
