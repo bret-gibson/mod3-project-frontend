@@ -82,7 +82,9 @@ function fetchUser(event, username) {
   header.innerHTML =
     "<h1 style='text-align:center;'>Song Guesser</h1> <h3 style='text-align:center;'>How well do you know top songs from the last three decades?</h3><br><h4>Rules:</h4><p>Once you hit start, songs will play automatically and a selection of choices will display below the timer. You have 10 seconds to get the answer right or you lose! +100 points for an answer within 5 seconds, +50 points otherwise. Play until you get a wrong answer!</p><br>";
 
-  fetch("http://localhost:3000/users/")
+  // fetch("http://localhost:3000/users/")
+
+  fetch("https://song-guesser-backend.herokuapp.com/users/")
     .then((response) => response.json())
     .then((usersArray) => {
       usersArray["data"].forEach((arrayItem) => {
@@ -113,7 +115,8 @@ function displayHighScores() {
   hiScoreList.id = "high-scores-list";
   column1.append(hiScoreList);
 
-  fetch("http://localhost:3000/game_sessions/top_scores")
+  // fetch("http://localhost:3000/game_sessions/top_scores")
+  fetch("https://song-guesser-backend.herokuapp.com/top_scores")
     .then((response) => response.json())
     .then((hiScoreArray) => {
       // debugger
@@ -139,7 +142,8 @@ function displayUserHighScores() {
 
   column3.append(userScoreList);
 
-  fetch(`http://localhost:3000/users/${header.id}`)
+  // fetch(`http://localhost:3000/users/${header.id}`)
+  fetch(`https://song-guesser-backend.herokuapp.com/users/${header.id}`)
     .then((response) => response.json())
     .then((userData) => {
       let games = userData["data"]["attributes"]["game_sessions"];
@@ -188,7 +192,8 @@ function playGame() {
 }
 
 function createGameSession() {
-  fetch("http://localhost:3000/game_sessions", {
+  // fetch("http://localhost:3000/game_sessions"
+  fetch("https://song-guesser-backend.herokuapp.com/game_sessions", {
     method: "POST",
     headers: {
       Accept: "application/json, text/plain, */*",
@@ -216,7 +221,8 @@ function createGameSession() {
 
 function fetchSong() {
   audioContainer.innerHTML = "";
-  fetch("http://localhost:3000/songs/answer_songs")
+  fetch("https://song-guesser-backend.herokuapp.com/songs/answer_songs")
+    // fetch("http://localhost:3000/songs/answer_songs")
     .then((response) => response.json())
     .then((songData) => {
       const songArray = songData["data"];
@@ -253,7 +259,8 @@ function createGameSong(songChoice) {
     correct_guess: false,
   };
 
-  fetch("http://localhost:3000/game_songs", {
+  // fetch("http://localhost:3000/game_songs"
+  fetch("https://song-guesser-backend.herokuapp.com/game_songs", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -347,7 +354,8 @@ function fetchChoices(songChoice) {
 
   startTimer(9);
 
-  fetch("http://localhost:3000/songs/dummy_songs")
+  // fetch("http://localhost:3000/songs/dummy_songs")
+  fetch("https://song-guesser-backend.herokuapp.com/dummy_songs")
     .then((response) => response.json())
     .then((songs) => {
       // Maybe fix so that we arent querying ALL songs every time...
@@ -506,18 +514,23 @@ function patchPoints() {
   let sessionObj = {
     points: score,
   };
-  fetch(`http://localhost:3000/game_sessions/${tooltip.id}`, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
-    body: JSON.stringify(sessionObj),
-  });
+  // fetch(`http://localhost:3000/game_sessions/${tooltip.id}`
+  fetch(
+    `https://song-guesser-backend.herokuapp.com/game_sessions/${tooltip.id}`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify(sessionObj),
+    }
+  );
 }
 
 function isHiScore() {
-  fetch("http://localhost:3000/game_sessions/top_scores")
+  // fetch("http://localhost:3000/game_sessions/top_scores");
+  fetch("https://song-guesser-backend.herokuapp.com/game_sessions/top_scores")
     .then((response) => response.json())
     .then((sessions) => {
       let lowestHiScore = sessions["data"][4]["attributes"]["points"];
@@ -561,7 +574,8 @@ function displayUserStats() {
   let totalGames = 0;
   let username;
   // let songCategories = []
-  fetch("http://localhost:3000/game_sessions")
+  // fetch("http://localhost:3000/game_sessions")
+  fetch("https://song-guesser-backend.herokuapp.com/game_sessions")
     .then((response) => response.json())
     .then((data) => {
       let songCategories = [];
