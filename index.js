@@ -30,7 +30,10 @@ function signIn(){
     const submitButton = document.createElement("input")
     submitButton.setAttribute("type", "submit")
     submitButton.value = "Log In"
-    signInForm.append(usernameInput, submitButton)
+    const formHeader = document.createElement("p");
+    formHeader.innerText =
+      'Please enter the username "bret" or "mary" to sign in';
+    signInForm.append(formHeader, usernameInput, submitButton)
     mainContainer.append(signInForm)
     // const username = usernameInput.value
     signInForm.addEventListener("submit", () => {
